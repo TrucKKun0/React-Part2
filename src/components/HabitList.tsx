@@ -1,9 +1,9 @@
 import { Button } from "./Button";
-import {startOfWeek, endOfWeek,eachDayOfInterval, format} from "date-fns"
+import {startOfWeek, endOfWeek,eachDayOfInterval, format, isFuture} from "date-fns"
 
 export function HabitList(){
     {/*  props are data passed to the component */}
-    const habits =[{id : "1", name:"Drink water"},{id : "2", name:"Go to the gym"}]
+    const habits =[{id : "1", name:"Drink water"}]
     if(habits.length ===0){
         return <p className="text-center text-zinc-500 py-12">
             No habbits yet. Add one above to get started!</p>
@@ -36,11 +36,17 @@ function HabitListItems({habit} : HabbitItemsProps){
                 <span className="font-medium">{habit.name}</span>
                 <span className="text-sm text-amber-400">1</span>
             </div>
-            <Button> Delete</Button>
+            <Button variant="ghost-destructive" className="text-sm"> Delete</Button>
          </div>
+         {/* key is required when you loop through an array to help React identify which items have changed, are added, or are removed. 
+         //It should be a unique identifier for each item in the list. 
+         //In this case, we can use the date's ISO string as the key since it is unique for each date. */}
         <div className="flex gap-1.5">
             {visibleDates.map(date=>(
-                <Button key={date.toISOString()}>
+                <Button 
+                key={date.toISOString()} 
+                disabled={isFuture(date)} 
+                className="flex flex-col items-center flex-1 gap-0.5 text-xs rounded-lg" >
                     <span className="font-medium">{format(date,"EEE")}</span>
                     <span>{format(date,"d")}</span>
                 </Button>

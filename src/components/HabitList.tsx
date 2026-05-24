@@ -1,9 +1,19 @@
 import { Button } from "./Button";
-import {startOfWeek, endOfWeek,eachDayOfInterval, format, isFuture} from "date-fns"
+import {startOfWeek, endOfWeek,eachDayOfInterval, format, isFuture, isSameDay} from "date-fns"
 
-export function HabitList(){
+export type Habit = {
+    id : string,
+    name : string,
+    completions : Date[]
+}
+
+type HabitsListProps={
+    habits : Habit[],
+    deleteHabit : (id : string) => void
+}
+export function HabitList({habits, deleteHabit} : HabitsListProps){
     {/*  props are data passed to the component */}
-    const habits =[{id : "1", name:"Drink water"}]
+    
     if(habits.length ===0){
         return <p className="text-center text-zinc-500 py-12">
             No habbits yet. Add one above to get started!</p>
@@ -12,7 +22,7 @@ export function HabitList(){
         {/* when you loop through a array it requires a key prop which is unique to that item */}
         {habits.map(habit=>(
 
-            <HabitListItems key={habit.id} habit = {habit} />
+            <HabitListItems key={habit.id} habit = {habit} deleteHabit = {deleteHabit} />
 
         ))}
     </div>
@@ -21,10 +31,11 @@ export function HabitList(){
 }
 
 type HabbitItemsProps = {
-    habit : {id : string , name : string}
+    habit : Habit,
+    deleteHabit : (id :string) => void
 }
 
-function HabitListItems({habit} : HabbitItemsProps){
+function HabitListItems({habit , deleteHabit} : HabbitItemsProps){
     {/* gives an array of all the dates in the current week */}
     const visibleDates = eachDayOfInterval({
         start : startOfWeek(new Date()),
@@ -36,7 +47,7 @@ function HabitListItems({habit} : HabbitItemsProps){
                 <span className="font-medium">{habit.name}</span>
                 <span className="text-sm text-amber-400">1</span>
             </div>
-            <Button variant="ghost-destructive" className="text-sm"> Delete</Button>
+            <Button onClick={() => deleteHabit(habit.id)} variant="ghost-destructive" className="text-sm" > Delete</Button>
          </div>
          {/* key is required when you loop through an array to help React identify which items have changed, are added, or are removed. 
          //It should be a unique identifier for each item in the list. 
@@ -46,6 +57,7 @@ function HabitListItems({habit} : HabbitItemsProps){
                 <Button 
                 key={date.toISOString()} 
                 disabled={isFuture(date)} 
+                variant = {habit.completions.some(d=> isSameDay(date, d))?"primary":"secondary"}
                 className="flex flex-col items-center flex-1 gap-0.5 text-xs rounded-lg" >
                     <span className="font-medium">{format(date,"EEE")}</span>
                     <span>{format(date,"d")}</span>
